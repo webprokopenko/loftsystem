@@ -18,7 +18,7 @@ let newsSchema = new Schema({
         type: String
     },
     user:{
-        type: String
+        type: Object
     }
 });
 

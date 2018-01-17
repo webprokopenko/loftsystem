@@ -48,6 +48,7 @@ rl.on('close', () => {
     access_token: uuidv1(),
     img: '',
     id: uuidv1(),
+    permissionId: uuidv1(),
     permission: {
       chat:{
         C:true,

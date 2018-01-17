@@ -5,16 +5,16 @@ const User = mongoose.model('users');
 const jwt = require("jwt-simple");
 require('../../config/passport-config');
 
-module.exports.getUserById = function(userId){
+module.exports.getUserById = function (userId) {
     let id = userId;
-    return new Promise((resolve,reject)=>{
-        User.findOne({id:userId})
-        .then(item=>{
-            resolve(item);
-        })
-        .catch(e=>{reject(e);})
+    return new Promise((resolve, reject) => {
+        User.findOne({ id: userId })
+            .then(item => {
+                resolve(item);
+            })
+            .catch(e => { reject(e); })
     });
-    
+
 
 };
 module.exports.saveUsers = function (req, res) {
@@ -131,5 +131,60 @@ module.exports.updateUser = function (req, res) {
         }
     }).catch(e => {
         res.status(400).json({ err: e.message });
+    });
+}
+getAllUsers = function (req, res) {
+    User.find().then(
+        items => {
+            return res.json(items);
+        }
+    ).catch(e => {
+        console.log(e);
+        return res.status(400).json({ err: e.message });
+    });
+}
+module.exports.deleteUser = function(req,res){
+    let id = req.params.id;
+    User.findOneAndRemove({id:id})
+    .then(item => {
+      if (!!item) {
+        getAllUsers(req,res);
+      } else {
+        res.status(404).json({ err: 'Cat not found' });
+      }
+    })
+    .catch(e => {
+      res.status(400).json({ err: e.message });
+    });
+}
+module.exports.getAllUsers = getAllUsers;
+module.exports.updatePermission = function(req,res){
+    let permissionId = req.body.permissionId;
+    let permission = req.body.permission;
+    let data = {};
+    if(permission.chat){
+        data.chat = permission.chat;
+    }
+    if(permission.news){
+        data.news = permission.news;
+    }
+    if(permission.setting){
+        data.setting = permission.setting;
+    }
+    console.log(data);
+    try{
+        User.findOneAndUpdate(
+            {permissionId:permissionId},
+            {
+                $set: data
+            },
+            { new: true }
+        );
+    } catch (error) {
+        console.log(error);
+    };
+    
+    permission.forEach(function(item) {
+        console.log(item);
     });
 }

@@ -29,10 +29,10 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
   // render the error page
-  res.status(err.status || 500);
+  res.status(err.status || 500); 
   //res.render('error', { message: err.message, error: err });
 });
 
-const server = app.listen(process.env.PORT || 2200, function() {
+const server = app.listen(process.env.PORT || 2300, function() {
   console.log('Сервер запущен на порте: ' + server.address().port);
 });

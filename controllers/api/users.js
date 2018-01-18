@@ -143,48 +143,54 @@ getAllUsers = function (req, res) {
         return res.status(400).json({ err: e.message });
     });
 }
-module.exports.deleteUser = function(req,res){
+module.exports.deleteUser = function (req, res) {
     let id = req.params.id;
-    User.findOneAndRemove({id:id})
-    .then(item => {
-      if (!!item) {
-        getAllUsers(req,res);
-      } else {
-        res.status(404).json({ err: 'Cat not found' });
-      }
-    })
-    .catch(e => {
-      res.status(400).json({ err: e.message });
-    });
+    User.findOneAndRemove({ id: id })
+        .then(item => {
+            if (!!item) {
+                getAllUsers(req, res);
+            } else {
+                res.status(404).json({ err: 'Cat not found' });
+            }
+        })
+        .catch(e => {
+            res.status(400).json({ err: e.message });
+        });
 }
 module.exports.getAllUsers = getAllUsers;
-module.exports.updatePermission = function(req,res){
+module.exports.updatePermission = function (req, res) {
     let permissionId = req.body.permissionId;
     let permission = req.body.permission;
     let data = {};
-    if(permission.chat){
-        data.chat = permission.chat;
-    }
-    if(permission.news){
-        data.news = permission.news;
-    }
-    if(permission.setting){
-        data.setting = permission.setting;
-    }
-    console.log(data);
-    try{
-        User.findOneAndUpdate(
-            {permissionId:permissionId},
-            {
-                $set: data
-            },
-            { new: true }
-        );
-    } catch (error) {
-        console.log(error);
-    };
-    
-    permission.forEach(function(item) {
-        console.log(item);
-    });
+    User.findOne({ permissionId: permissionId })
+        .then(item => {
+            if (typeof permission.setting.C !== 'undefined') item.permission.setting.C = permission.setting.C; 
+            if (typeof permission.setting.R !== 'undefined') item.permission.setting.R = permission.setting.R;
+            if (typeof permission.setting.U !== 'undefined') item.permission.setting.U = permission.setting.U;
+            if (typeof permission.setting.D !== 'undefined') item.permission.setting.D = permission.setting.D;
+
+            if (typeof permission.news.C !== 'undefined') item.permission.news.C = permission.news.C;
+            if (typeof permission.news.R !== 'undefined') item.permission.news.R = permission.news.R;
+            if (typeof permission.news.U !== 'undefined') item.permission.news.U = permission.news.U;
+            if (typeof permission.news.D !== 'undefined') item.permission.news.D = permission.news.D;
+
+            if (typeof permission.chat.C !== 'undefined') item.permission.chat.C = permission.chat.C;
+            if (typeof permission.chat.R !== 'undefined') item.permission.chat.R = permission.chat.R;
+            if (typeof permission.chat.U !== 'undefined') item.permission.chat.U = permission.chat.U;
+            if (typeof permission.chat.D !== 'undefined') item.permission.chat.D = permission.chat.D;
+
+            try {
+                User.findOneAndUpdate(
+                    { permissionId: permissionId },
+                    {
+                        permission: item.permission
+                    },
+                    { new: true }
+                );
+            } catch (error) {
+                console.log(error);
+            };
+
+        })
+        .catch(e => { console.log(e); })
 }

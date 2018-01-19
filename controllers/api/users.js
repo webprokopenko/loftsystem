@@ -136,7 +136,7 @@ module.exports.saveImage = function(req,res){
             let dir = fileName.substr(fileName.indexOf('\\'));
             User.findOneAndUpdate(
                 {id:id},
-                {image:fileName},
+                {image:fileNamedb},
                 { new: true }
             ).then(item=>{
                 if(item) {

@@ -4,6 +4,10 @@ const uuidv1 = require('uuid/v1');
 const User = mongoose.model('users');
 const jwt = require("jwt-simple");
 require('../../config/passport-config');
+const bCrypt = require('bcryptjs');
+const formidable = require('formidable');
+const path = require('path');
+const fs = require('fs');
 
 module.exports.getUserById = function (userId) {
     let id = userId;
@@ -104,33 +108,76 @@ module.exports.authFromToken = function (req, res, next) {
         });
     })(req, res, next);
 }
-module.exports.updateUser = function (req, res) {
-    if (!(!!req.body.name) || !(!!req.body.age)) {
-        return res.status(400).json({ err: 'Data format is not correct' });
-    }
-
+module.exports.saveImage = function(req,res){
     let id = req.params.id;
-    let data = {
-        username: req.body.username,
-        firstName: req.body.firstName,
-        middleName: req.body.middleName,
-        surName: req.body.surName,
-    };
-
-    User.findByIdAndUpdate(
-        id,
-        {
-            $set: data
-        },
-        { new: true }
-    ).then(item => {
-        if (!!item) {
-            res.json(item);
-        } else {
-            res.status(404).json({ err: 'Cat not found' });
+    let form = new formidable.IncomingForm();
+    let upload = 'public/upload';
+    let fileName;
+    
+    form.uploadDir = path.join(process.cwd(), upload);
+    form.parse(req, function (err, fields, files) {
+        if (err) {
+            return res.json({msg:'Проект не загружен Ошибка!',status:'Error'});
         }
+
+        if (files[id]['name'] === '' || files[id]['size'] === 0) {
+            return res.json({msg:'Проект не загружен Ошибка!',status:'Error'});
+        }
+
+        fileName = path.join(upload, id+files[id]['name']);
+        fileNamedb = path.join('upload',id+files[id]['name']);
+
+        fs.rename(files[id]['path'], fileName, function (err) {
+            if (err) {
+                console.error(err);
+                fs.unlink(fileName);
+                fs.rename(iles[id]['path'], fileName); 
+            }
+            let dir = fileName.substr(fileName.indexOf('\\'));
+            User.findOneAndUpdate(
+                {id:id},
+                {image:fileName},
+                { new: true }
+            ).then(item=>{
+                if(item) {
+                    res.json({path:fileName});
+                } else{
+                    res.status(404).json({ err: 'User not save' });
+                }
+                
+            }).catch(e=>{
+                console.log(e);
+            });
+        });
+    });
+};
+module.exports.updateUser = function (req, res) {
+    let id = req.params.id;
+    let data = {};
+    User.findOne({ id: id }).then((item) => {
+        if (req.body.firstName) { data.firstName = req.body.firstName } else data.firstName = item.firstName;
+        if (req.body.middleName) { data.middleName = req.body.middleName } else data.middleName = item.middleName;
+        if (req.body.surName) { data.surName = req.body.surName } else data.surName = item.surName;
+        if (req.body.oldPassword && item.validPassword(req.body.oldPassword) && req.body.password) {
+            data.password = bCrypt.hashSync(req.body.password, bCrypt.genSaltSync(10), null);
+        }
+        User.findOneAndUpdate(
+            { id: id },
+            {
+                $set: data
+            },
+            { new: true }
+        ).then(item => {
+            if (item) {
+                res.json(item);
+            } else {
+                res.status(404).json({ err: 'User not found' });
+            }
+        }).catch(e => {
+            res.status(400).json({ err: e.message });
+        });
     }).catch(e => {
-        res.status(400).json({ err: e.message });
+        console.log(e);
     });
 }
 getAllUsers = function (req, res) {
@@ -164,7 +211,7 @@ module.exports.updatePermission = function (req, res) {
     let data = {};
     User.findOne({ permissionId: permissionId })
         .then(item => {
-            if (typeof permission.setting.C !== 'undefined') item.permission.setting.C = permission.setting.C; 
+            if (typeof permission.setting.C !== 'undefined') item.permission.setting.C = permission.setting.C;
             if (typeof permission.setting.R !== 'undefined') item.permission.setting.R = permission.setting.R;
             if (typeof permission.setting.U !== 'undefined') item.permission.setting.U = permission.setting.U;
             if (typeof permission.setting.D !== 'undefined') item.permission.setting.D = permission.setting.D;

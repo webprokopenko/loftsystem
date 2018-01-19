@@ -2,7 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
-
+const http = require('http');
+const server = http.createServer(app);
+const io = require('socket.io').listen(server);
 const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
@@ -16,6 +18,24 @@ app.use(bodyParser.json({ type: 'text/plain' }));
 app.use(bodyParser.urlencoded({extended: false}));
 //static file
 app.use(express.static(path.join(__dirname, 'public')));
+//socket
+let connectedUsers = {};
+io.on('connection', (socket) => {
+    let user = {
+        id: socket.id,
+        username: socket.handshake.headers.username
+    };
+    connectedUsers[socket.id] = user;
+    socket.emit('all users', connectedUsers);
+    io.sockets.emit('new user', user);
+    socket.on('chat message', function(msg, user) {
+        socket.broadcast.to(user).emit('chat message', msg, socket.id);
+    });
+    socket.on('disconnect', function() {
+        io.sockets.emit('delete user', socket.id);
+        delete connectedUsers[socket.id];
+    });
+});
 //routes require
 app.use('/', require('./routes/index'));
 
@@ -33,6 +53,6 @@ app.use(function(err, req, res, next) {
   //res.render('error', { message: err.message, error: err });
 });
 
-const server = app.listen(process.env.PORT || 2300, function() {
+server.listen(process.env.PORT || 2300, function() {
   console.log('Сервер запущен на порте: ' + server.address().port);
 });

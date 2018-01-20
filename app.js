@@ -53,6 +53,6 @@ app.use(function(err, req, res, next) {
   //res.render('error', { message: err.message, error: err });
 });
 
-server.listen(process.env.PORT || 2392, function() {
+server.listen(process.env.PORT || 2318, function() {
   console.log('Сервер запущен на порте: ' + server.address().port);
 });

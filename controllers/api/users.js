@@ -108,44 +108,44 @@ module.exports.authFromToken = function (req, res, next) {
         });
     })(req, res, next);
 }
-module.exports.saveImage = function(req,res){
+module.exports.saveImage = function (req, res) {
     let id = req.params.id;
     let form = new formidable.IncomingForm();
     let upload = 'public/upload';
     let fileName;
-    
+
     form.uploadDir = path.join(process.cwd(), upload);
     form.parse(req, function (err, fields, files) {
         if (err) {
-            return res.json({msg:'Проект не загружен Ошибка!',status:'Error'});
+            return res.json({ msg: 'Проект не загружен Ошибка!', status: 'Error' });
         }
 
         if (files[id]['name'] === '' || files[id]['size'] === 0) {
-            return res.json({msg:'Проект не загружен Ошибка!',status:'Error'});
+            return res.json({ msg: 'Проект не загружен Ошибка!', status: 'Error' });
         }
 
-        fileName = path.join(upload, id+files[id]['name']);
-        fileNamedb = path.join('upload',id+files[id]['name']);
+        fileName = path.join(upload, id + files[id]['name']);
+        fileNamedb = path.join('upload', id + files[id]['name']);
 
         fs.rename(files[id]['path'], fileName, function (err) {
             if (err) {
                 console.error(err);
                 fs.unlink(fileName);
-                fs.rename(iles[id]['path'], fileName); 
+                fs.rename(iles[id]['path'], fileName);
             }
             let dir = fileName.substr(fileName.indexOf('\\'));
             User.findOneAndUpdate(
-                {id:id},
-                {image:fileNamedb},
+                { id: id },
+                { image: fileNamedb },
                 { new: true }
-            ).then(item=>{
-                if(item) {
-                    res.json({path:fileName});
-                } else{
+            ).then(item => {
+                if (item) {
+                    res.json({ path: fileName });
+                } else {
                     res.status(404).json({ err: 'User not save' });
                 }
-                
-            }).catch(e=>{
+
+            }).catch(e => {
                 console.log(e);
             });
         });
@@ -211,33 +211,44 @@ module.exports.updatePermission = function (req, res) {
     let data = {};
     User.findOne({ permissionId: permissionId })
         .then(item => {
-            if (typeof permission.setting.C !== 'undefined') item.permission.setting.C = permission.setting.C;
-            if (typeof permission.setting.R !== 'undefined') item.permission.setting.R = permission.setting.R;
-            if (typeof permission.setting.U !== 'undefined') item.permission.setting.U = permission.setting.U;
-            if (typeof permission.setting.D !== 'undefined') item.permission.setting.D = permission.setting.D;
 
-            if (typeof permission.news.C !== 'undefined') item.permission.news.C = permission.news.C;
-            if (typeof permission.news.R !== 'undefined') item.permission.news.R = permission.news.R;
-            if (typeof permission.news.U !== 'undefined') item.permission.news.U = permission.news.U;
-            if (typeof permission.news.D !== 'undefined') item.permission.news.D = permission.news.D;
+            // for (let prop in permissions.chat) {
+            //     user.chat[prop] = permissions.chat[prop];
+            //   };
+            if(permission.setting){
+                if (permission.setting.C !== undefined) item.permission.setting.C = permission.setting.C;
+                if (permission.setting.R !== undefined) item.permission.setting.R = permission.setting.R;
+                if (permission.setting.U !== undefined) item.permission.setting.U = permission.setting.U;
+                if (permission.setting.D !== undefined) item.permission.setting.D = permission.setting.D;
+            }
+            if(permission.news){
+                if (permission.news.C !== undefined) item.permission.news.C = permission.news.C;
+                if (permission.news.R !== undefined) item.permission.news.R = permission.news.R;
+                if (permission.news.U !== undefined) item.permission.news.U = permission.news.U;
+                if (permission.news.D !== undefined) item.permission.news.D = permission.news.D;
+            }
+            if(permission.chat){
+                if (permission.chat.C !== undefined) item.permission.chat.C = permission.chat.C;
+                if (permission.chat.R !== undefined) item.permission.chat.R = permission.chat.R;
+                if (permission.chat.U !== undefined) item.permission.chat.U = permission.chat.U;
+                if (permission.chat.D !== undefined) item.permission.chat.D = permission.chat.D;
+            }
 
-            if (typeof permission.chat.C !== 'undefined') item.permission.chat.C = permission.chat.C;
-            if (typeof permission.chat.R !== 'undefined') item.permission.chat.R = permission.chat.R;
-            if (typeof permission.chat.U !== 'undefined') item.permission.chat.U = permission.chat.U;
-            if (typeof permission.chat.D !== 'undefined') item.permission.chat.D = permission.chat.D;
+            item.save(function(err,res){
+                if(res) console.log(res);
+                if(err) console.log(err);
+            });
+            // User.findOneAndUpdate(
+            //     { permissionId: permissionId },
+            //     {
+            //         permission: item.permission
+            //     },
+            //     { new: true }
+            // ).then({
 
-            try {
-                User.findOneAndUpdate(
-                    { permissionId: permissionId },
-                    {
-                        permission: item.permission
-                    },
-                    { new: true }
-                );
-            } catch (error) {
-                console.log(error);
-            };
-
+            // }).catch(e => {
+            //     console.log(e);
+            // });
         })
         .catch(e => { console.log(e); })
 }

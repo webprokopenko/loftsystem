@@ -15,6 +15,7 @@ router.get('/api/getUsers', ctrlUsers.getAllUsers);
 router.delete('/api/deleteUser/:id', ctrlUsers.deleteUser);
 router.put('/api/updateUserPermission/:id', ctrlUsers.updatePermission);
 router.post('/api/saveUserImage/:id', ctrlUsers.saveImage);
+router.post('/api/authFromToken', ctrlUsers.authFromToken)
 
 router.post('/api/newNews', ctrlNews.saveNews);
 router.get('/api/getNews', ctrlNews.getAllNews);

@@ -227,3 +227,12 @@ module.exports.updatePermission = function (req, res) {
         })
         .catch(e => { console.log(e); })
 }
+module.exports.authFromToken = function(req,res){
+    let access_token = req.body.access_token;
+    User.findOneAndUpdate({access_token:access_token})
+        .then(item=>{
+            if(item) res.json(item);
+        }).catch(e=>{
+            res.status(400).json({ err: e.message });
+        })
+}

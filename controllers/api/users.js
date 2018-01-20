@@ -211,44 +211,19 @@ module.exports.updatePermission = function (req, res) {
     let data = {};
     User.findOne({ permissionId: permissionId })
         .then(item => {
-
-            // for (let prop in permissions.chat) {
-            //     user.chat[prop] = permissions.chat[prop];
-            //   };
-            if(permission.setting){
-                if (permission.setting.C !== undefined) item.permission.setting.C = permission.setting.C;
-                if (permission.setting.R !== undefined) item.permission.setting.R = permission.setting.R;
-                if (permission.setting.U !== undefined) item.permission.setting.U = permission.setting.U;
-                if (permission.setting.D !== undefined) item.permission.setting.D = permission.setting.D;
-            }
-            if(permission.news){
-                if (permission.news.C !== undefined) item.permission.news.C = permission.news.C;
-                if (permission.news.R !== undefined) item.permission.news.R = permission.news.R;
-                if (permission.news.U !== undefined) item.permission.news.U = permission.news.U;
-                if (permission.news.D !== undefined) item.permission.news.D = permission.news.D;
-            }
-            if(permission.chat){
-                if (permission.chat.C !== undefined) item.permission.chat.C = permission.chat.C;
-                if (permission.chat.R !== undefined) item.permission.chat.R = permission.chat.R;
-                if (permission.chat.U !== undefined) item.permission.chat.U = permission.chat.U;
-                if (permission.chat.D !== undefined) item.permission.chat.D = permission.chat.D;
-            }
-
+            for (let prop in permission.chat) {
+                item.permission.chat[prop] = permission.chat[prop];
+            };
+            for (let prop in permission.setting) {
+                item.permission.setting[prop] = permission.setting[prop];
+            };
+            for (let prop in permission.news) {
+                item.permission.news[prop] = permission.news[prop];
+            };
+        
             item.save(function(err,res){
-                if(res) console.log(res);
                 if(err) console.log(err);
             });
-            // User.findOneAndUpdate(
-            //     { permissionId: permissionId },
-            //     {
-            //         permission: item.permission
-            //     },
-            //     { new: true }
-            // ).then({
-
-            // }).catch(e => {
-            //     console.log(e);
-            // });
         })
         .catch(e => { console.log(e); })
 }

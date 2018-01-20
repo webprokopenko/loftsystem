@@ -8,41 +8,58 @@ let usersSchema = new Schema({
     required: [true, 'Укажите Имя'],
     unique: true
   },
-  firstName:{
+  firstName: {
     type: String,
     unique: false,
-    required:false,
+    required: false,
   },
-  middleName:{
+  middleName: {
     type: String,
     unique: false,
-    required:false,
+    required: false,
   },
-  surName:{
+  surName: {
     type: String,
     unique: false,
     require: false
   },
-  access_token:{
+  access_token: {
     type: String,
     unique: false,
-    required:false,
+    required: false,
   },
-  image:{
+  image: {
     type: String,
     unique: false,
-    required:false,
-    default:""
+    required: false,
+    default: ""
   },
-  permission:{
-    type:Object,
+  permission: {
+    chat: {
+      С: { type: Boolean },
+      R: { type: Boolean },
+      U: { type: Boolean },
+      D: { type: Boolean }
+    },
+    news: {
+      С: { type: Boolean },
+      R: { type: Boolean },
+      U: { type: Boolean },
+      D: { type: Boolean }
+    },
+    setting: {
+      С: { type: Boolean },
+      R: { type: Boolean },
+      U: { type: Boolean },
+      D: { type: Boolean }
+    }
   },
-  permissionId:{
+  permissionId: {
     type: String,
-    default:""
+    default: ""
   },
-  id:{
-    type:String,
+  id: {
+    type: String,
     required: true,
   },
   password: {
@@ -52,11 +69,11 @@ let usersSchema = new Schema({
   }
 });
 
-usersSchema.methods.setPassword = function(password) {
+usersSchema.methods.setPassword = function (password) {
   this.password = bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 };
 
-usersSchema.methods.validPassword = function(password) {
+usersSchema.methods.validPassword = function (password) {
   return bCrypt.compareSync(password, this.password);
 };
 

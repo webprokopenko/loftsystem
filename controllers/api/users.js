@@ -16,7 +16,7 @@ module.exports.getUserById = function (userId) {
             .then(item => {
                 resolve(item);
             })
-            .catch(e => { reject(e); })
+            return res.json({ msg: 'Ошибка!', status: 'Error' });
     });
 
 
